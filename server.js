@@ -34,14 +34,94 @@ app.get("/produtos", (req, res) => {
 
 app.get("/produtos/:id", (req, res) => {
     let id = +req.params.id
-    let idx = lista_produtos.find((e) => e.id === id);
+    let produto = procuraProduto(id);
 
-    if (idx) {
-        res.json(idx);
+    if (produto) {
+        res.json(produto);
     } else {
         res.status(404).json({
             message: "produto não encontrado"
         });
     }
-
 });
+
+app.post("/produtos", (req, res) => {
+
+    if (!procuraProduto(req.body.id)) {
+        if (trataBodyRequest(req.body, res)) {
+            lista_produtos.produtos.push(req.body);
+            res.json({
+                mensagem: 'produto inserido com sucesso!',
+                produto: req.body
+            });
+        }
+
+    } else {
+        res.status(400).json({
+            mensagem: `produto com id ${req.body.id} já cadastrado na base. Por favor, inserir um id novo.`
+        });
+    }
+});
+
+app.put('/produtos/:id', (req, res) => {
+    let id = +req.params.id
+    let produto = procuraProduto(id);
+
+    if (produto) {
+        produto.descricao = req.body.descricao;
+        produto.valor = req.body.descricao;
+        produto.marca = req.body.marca
+        res.json({
+            mensagem: 'produto atualizado com sucesso!'
+        });
+    } else {
+        res.status(400).json({
+            mensagem: 'id não encontrado'
+        })
+    }
+});
+
+app.delete('/produtos/:id', (req, res) => {
+    let id = +req.params.id
+    let produto = lista_produtos.produtos.findIndex(e => e.id == id);
+
+    if (produto > -1) {
+        lista_produtos.produtos.splice(produto, 1);
+        res.json({
+            mensagem: "produto removido!"
+        });
+    } else {
+        res.status(404).json({
+            mensagem: 'produto não encontrado'
+        });
+    }
+});
+
+function procuraProduto(id) {
+    let idx = lista_produtos.produtos.find((e) => e.id == id);
+    if (idx) {
+        return idx;
+    }
+    return;
+}
+
+function trataBodyRequest(produto, res) {
+    if (!produto.descricao) {
+        res.status(400).json({
+            mensagem: `campo descrição é obrigatório!`
+        });
+        return false;
+    } else if (!produto.valor) {
+        res.status(400).json({
+            mensagem: `campo valor é obrigatório!`
+        });
+        return false;
+    } else if (!produto.marca) {
+        res.status(400).json({
+            mensagem: `campo marca é obrigatório!`
+        });
+        return false;
+    } else {
+        return true;
+    }
+}
