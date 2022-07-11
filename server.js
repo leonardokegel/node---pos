@@ -69,14 +69,14 @@ app.put('/produtos/:id', (req, res) => {
 
     if (produto) {
         produto.descricao = req.body.descricao;
-        produto.valor = req.body.descricao;
-        produto.marca = req.body.marca
+        produto.valor = req.body.valor;
+        produto.marca = req.body.marca;
         res.json({
             mensagem: 'produto atualizado com sucesso!'
         });
     } else {
-        res.status(400).json({
-            mensagem: 'id não encontrado'
+        res.status(404).json({
+            mensagem: 'produto não encontrado!'
         })
     }
 });
